@@ -17,7 +17,7 @@ const CoWorkingSpaceSchema = new mongoose.Schema(
     },
     openclosetime: {
       type: String
-    },
+    }
   },
   {
     toJSON: { virtuals: true },
@@ -25,4 +25,19 @@ const CoWorkingSpaceSchema = new mongoose.Schema(
   }
 );
 
-module.exports =mongoose.model('Coworkingspace',CoWorkingSpaceSchema);
+//cascade delete reservation when a coworkingspace is deleted
+CoWorkingSpaceSchema.pre("remove", async function (next) {
+  console.log(`Reservations being removed from coworkingspace ${this._id}`);
+  await this.model(`Reservation`).deleteMany({ coworkingspace: this._id });
+  next();
+});
+
+//reverse populate with virtual
+CoWorkingSpaceSchema.virtual("reservations", {
+  ref: "Reservation",
+  localField: "_id",
+  foreignField: "coworkingspace",
+  justOne: false
+});
+
+module.exports = mongoose.model("Coworkingspace", CoWorkingSpaceSchema);

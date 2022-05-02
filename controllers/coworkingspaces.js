@@ -1,8 +1,12 @@
 const Coworkingspace = require("../models/Coworkingspace");
 
 exports.getcoworkingspaces = async (req, res, next) => {
+  let queryStr = JSON.stringify(req.query);
+  let query = Coworkingspace.find(JSON.parse(queryStr)).populate(
+    "reservations"
+  );
   try {
-    const coworkingspace = await Coworkingspace.find();
+    const coworkingspace = await query;
     res.status(200).json({
       success: true,
       count: coworkingspace.length,
@@ -56,10 +60,15 @@ exports.updatecoworkingspace = async (req, res, next) => {
 
 exports.deletecoworkingspace = async (req, res, next) => {
   try {
-    const coworkingspace = await Coworkingspace.findByIdAndDelete(
-      req.params.id
-    );
-    if (!coworkingspace) return res.status(400).json({ success: false });
+    const coworkingspace = await Coworkingspace.findById(req.params.id);
+    if (!coworkingspace)
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message: `Co-working space is not found with id ${req.params.id}`
+        });
+    coworkingspace.remove();
     res.status(200).json({ success: true, data: {} });
   } catch (err) {
     res.status(400).json({ success: false });
