@@ -6,22 +6,24 @@ const CoWorkingSpaceSchema = new mongoose.Schema(
       required: [true, "Please add name"],
       unique: true,
       trim: true,
-      maxlength: [50, "Name can not be more than 50 characters"]
+      maxlength: [50, "Name can not be more than 50 characters"],
     },
     address: {
       type: String,
-      required: [true, "Please add a address"]
+      required: [true, "Please add a address"],
     },
     tel: {
-      type: String
+      type: String,
+      required: [true, "please add telephone number"],
     },
     openclosetime: {
-      type: String
-    }
+      type: String,
+      required: [true, "please enter open close time"],
+    },
   },
   {
     toJSON: { virtuals: true },
-    toObject: { virtuals: true }
+    toObject: { virtuals: true },
   }
 );
 
@@ -37,7 +39,7 @@ CoWorkingSpaceSchema.virtual("reservations", {
   ref: "Reservation",
   localField: "_id",
   foreignField: "coworkingspace",
-  justOne: false
+  justOne: false,
 });
 
 module.exports = mongoose.model("Coworkingspace", CoWorkingSpaceSchema);
