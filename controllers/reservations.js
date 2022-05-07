@@ -70,17 +70,40 @@ exports.getReservation = async (req, res, next) => {
 // //route Post /api/v1/coworkingspaces/:coworkingspaceId/reservation
 // //access private
 exports.addReservation = async (req, res, next) => {
+  let reqtime = req.body.date;
+  let reqhour = reqtime.slice(11, 13);
+  let reqminute = reqtime.slice(14, 16);
+  let numericreqtime = reqhour * 60 + reqminute * 1;
   try {
     req.body.coworkingspace = req.params.coworkingspaceId;
     const coworkingspace = await Coworkingspace.findById(
       req.params.coworkingspaceId
     );
+    let opentime = coworkingspace.openclosetime;
+    let openhour = opentime.slice(0, 2);
+    let openminute = opentime.slice(3, 5);
+    let closehour = opentime.slice(6, 8);
+    let closeminute = opentime.slice(9, 11);
+    let numericopentime = openhour * 60 + openminute * 1;
+    let numericclosetime = closehour * 60 + closeminute * 1;
+    console.log(numericreqtime);
+    console.log(numericopentime);
+    console.log(numericclosetime);
+
     if (!coworkingspace) {
       return res.status(404).json({
         success: false,
         message: `No coworkingspace with the  id of ${req.params.coworkingspaceId}`
       });
     }
+
+    if (numericopentime > numericreqtime || numericclosetime < numericreqtime) {
+      return res.status(404).json({
+        success: false,
+        message: `Coworking space is not available for your request time`
+      });
+    }
+
     console.log(req.body);
     //add user id  to req.body
     req.body.user = req.user.id;
